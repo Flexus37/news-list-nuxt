@@ -73,4 +73,32 @@
       line-height: 1
     }
   }
+
+  .error {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+
+    &__refreshBtn {
+      margin: 1.5rem 0;
+      padding: 1rem 1.2rem;
+
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: $color-blue;
+      cursor: pointer;
+      border: none;
+      border-radius: .3rem;
+      background-color: $color-white;
+      box-shadow: $shadow-1, $shadow-2;
+
+      transition: color .1s ease-in-out, background-color .1s ease-in-out;
+
+      &:hover {
+        background-color: $color-blue;
+        color: $color-white;
+      }
+    }
+  }
 </style>

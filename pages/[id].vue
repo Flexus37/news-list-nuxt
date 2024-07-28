@@ -4,7 +4,7 @@
 
 	const refreshKey = useRefreshNewsStore();
 
-	const { data: news, status, error, refresh } = useFetch<RssItem[]>('/api/news', {
+	const { data: news = [], status, error, refresh } = useFetch<RssItem[]>('/api/news', {
 		watch: [refreshKey]
 	});
 
@@ -18,8 +18,15 @@
 		</circle><g></g></g>
 		</svg>
 	</div>
+	<div class='error' v-else-if='error'>
+		<h2>Не удалось получить новости 😢</h2>
+		<button
+			class='error__refreshBtn'
+			@click='refresh()'
+		>Попробовать снова</button>
+	</div>
 	<NewsList v-else-if='news' :newsData='news' />
-	<div v-else>
-		<h2>Не удалось получить новости :(</h2>
+	<div class='error' v-else>
+		<h2>К сожалению новости не найдены</h2>
 	</div>
 </template>

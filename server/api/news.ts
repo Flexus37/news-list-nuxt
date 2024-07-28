@@ -5,7 +5,7 @@ const parseRss = async (url: string) => {
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      return [];
+      return { error: `Не удалось получить новости с ${url}` };
     }
 
     const text = await response.text();
@@ -27,8 +27,8 @@ const parseRss = async (url: string) => {
       },
     }));
   } catch (error) {
-    console.error(`Error fetching or parsing RSS feed from ${url}`, error);
-    return [];
+    console.error(`Не удалось получить новости с ${url}`, error);
+    return { error: `Не удалось получить новости с ${url}` };
   }
 }
 
@@ -42,6 +42,12 @@ export default defineEventHandler(async (event) => {
   const results = await Promise.all(promises);
 
   const combinedResults = results.flat();
+
+  const errors = combinedResults.filter(result => 'error' in result);
+
+  if (errors.length > 0) {
+    return { error: errors.map(e => e.error).join('; ') };
+  }
 
   return combinedResults;
 });
