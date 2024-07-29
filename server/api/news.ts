@@ -39,15 +39,20 @@ export default defineEventHandler(async (event) => {
   ];
 
   const promises = urls.map(url => parseRss(url));
-  const results = await Promise.all(promises);
+  const results = await Promise.allSettled(promises);
 
-  const combinedResults = results.flat();
+  const successfulResults = results
+    .filter(result => result.status === 'fulfilled')
+    .map(result => result.value)
+    .flat();
 
-  const errors = combinedResults.filter(result => 'error' in result);
-
-  if (errors.length > 0) {
-    return { error: errors.map(e => e.error).join('; ') };
+  if (successfulResults.length === 0) {
+    const errors = results
+      .filter(result => result.status === 'rejected')
+      .map(result => result.reason.message)
+      .join('; ');
+    return { error: `Ошибка получения данных: ${errors}` };
   }
 
-  return combinedResults;
+  return successfulResults;
 });
