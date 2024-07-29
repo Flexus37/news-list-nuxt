@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import type { ViewMode } from '~/store/viewMode.store'
+import type { RouteQuery } from '~/types/queryParams'
 import type { Filter } from '~/types/types'
 
 const route = useRoute();
+const queryParams = computed<RouteQuery>(() => route.query);
 const router = useRouter();
 
 const viewMode = useViewModeStore();
@@ -17,7 +19,7 @@ onMounted(() => {
 	}
 
 	// Получение фильтра из query params и запись его в ref-объект
-	const filterFromQuery = route.query.filter as Filter;
+	const filterFromQuery = queryParams.value.filter;
 	if (filterFromQuery) {
 		currentFilter.value = filterFromQuery;
 	}
@@ -39,7 +41,7 @@ const handleChangeFilter = (filterName: Filter) => {
 		query: {
 			...route.query,
 			filter: filterName
-		}
+		} as RouteQuery
 	})
 }
 
@@ -49,9 +51,9 @@ const handleChangeViewMode = (viewModeParam: ViewMode) => {
 	router.push({
 		path: '/1',
 		query: {
+			...route.query,
 			filter: currentFilter.value,
-			search: route.query.search
-		}
+		} as RouteQuery
 	})
 }
 </script>

@@ -1,31 +1,30 @@
 <script lang="ts" setup>
+import type { RouteQuery } from '~/types/queryParams'
 
 const route = useRoute();
+const queryParams = computed<RouteQuery>(() => route.query);
 const router = useRouter();
 
 const refreshKey = useRefreshNewsStore();
 
-const searchQuery = ref('');
+const searchQuery = ref<string>('');
 
 // Получение строки поиска при монтировании компонента
 onMounted(() => {
-	const searchFromQuery = route.query.search as string;
+	const searchFromQuery = queryParams.value.search;
 	if (searchFromQuery) {
 		searchQuery.value = searchFromQuery;
 	}
 });
 
 // Изменение строки поиска и запись в query params
-const handleSearchChange = (e: Event) => {
-	const target = e.target as HTMLInputElement;
-	searchQuery.value = target.value.trim();
-
+const handleSearchChange = () => {
 	router.push({
 		path: '/1',
 		query: {
 			...route.query,
-			search: searchQuery.value,
-		},
+			search: searchQuery.value.trim(),
+		} as RouteQuery,
 	});
 }
 
@@ -36,7 +35,7 @@ const handleRefresh = () => {
 		query: {
 			filter: 'все',
 			search: ''
-		}
+		} as RouteQuery
 	})
 	refreshKey.refresh();
 };

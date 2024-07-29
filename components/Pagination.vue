@@ -11,7 +11,7 @@ const props = defineProps<{
 const { currentPage, totalPages, filter, searchTerm } = toRefs(props);
 
 // Получение массива с страницами для пагинации
-const pages = computed(() => {
+const pages = computed<(string | number)[]>(() => {
 	if (totalPages.value <= 1) {
 		return [];
 	}

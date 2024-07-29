@@ -1,10 +1,7 @@
 <script lang="ts" setup>
+import type { RouteQuery } from '~/types/queryParams'
 import type { RssItem } from '~/types/rss'
 import type { Filter } from '~/types/types'
-
-// Количество новостей на страницу
-const GRID_PAGE_SIZE = 4; // в режиме grid
-const LIST_PAGE_SIZE = 3; // в режиме list
 
 const props = defineProps<{
 	newsData: RssItem[]
@@ -12,19 +9,19 @@ const props = defineProps<{
 const { newsData } = toRefs(props);
 
 const route = useRoute();
+const queryParams = computed<RouteQuery>(() => route.query);
 const viewMode = useViewModeStore();
 
 // Получение строки поиска и фильтров
-const searchQuery = computed(() => (route.query.search as string || '').toLowerCase());
-const filterQuery = computed(() => (route.query.filter || 'все') as Filter);
+const searchQuery = computed<string>(() => (queryParams.value.search || '').toLowerCase());
+const filterQuery = computed<Filter>(() => queryParams.value.filter || 'все');
 
-// Получение текущей страницы и её размера
-const currentPage = computed(() => Number(route.params.id) ?? 1);
-const currentPageSize = computed(() => viewMode.get === 'grid' ? GRID_PAGE_SIZE : LIST_PAGE_SIZE);
+// Получение текущей страницы
+const currentPage = computed<number>(() => Number(route.params.id) ?? 1);
 
 // Сортировка новостей по датам
 const sortedNewsData = computed<RssItem[]>(() => {
-	if (!newsData.value) {
+	if (!newsData.value || newsData.value.length === 0) {
 		return [];
 	}
 
@@ -35,7 +32,7 @@ const sortedNewsData = computed<RssItem[]>(() => {
 
 // Фильтрация новостей
 const filteredNews = computed<RssItem[]>(() => {
-	if (!sortedNewsData.value) {
+	if (!sortedNewsData.value || sortedNewsData.value.length === 0) {
 		return [];
 	}
 
@@ -51,14 +48,22 @@ const filteredNews = computed<RssItem[]>(() => {
 });
 
 // Общее количество новостей
-const totalPages = computed(() => {
-	return Math.ceil(filteredNews.value.length / currentPageSize.value);
+const totalPages = computed<number>(() => {
+	if (!filteredNews.value || filteredNews.value.length === 0) {
+		return 1;
+	}
+
+	return Math.ceil(filteredNews.value.length / viewMode.pageSize);
 });
 
 // Количество новостей на странице в зависимости от режима отображения
-const startIndex = computed(() => (currentPage.value - 1) * currentPageSize.value);
-const endIndex = computed(() => startIndex.value + currentPageSize.value);
-const newsToShow = computed(() => {
+const startIndex = computed<number>(() => (currentPage.value - 1) * viewMode.pageSize);
+const endIndex = computed<number>(() => startIndex.value + viewMode.pageSize);
+const newsToShow = computed<RssItem[]>(() => {
+	if (!filteredNews.value || filteredNews.value.length === 0) {
+		return [];
+	}
+
 	return filteredNews.value.slice(startIndex.value, endIndex.value);
 });
 </script>
