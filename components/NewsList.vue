@@ -121,7 +121,7 @@ const newsToShow = computed<RssItem[]>(() => {
 	@media (max-width: $size-md) {
 		.gridMode {
 			grid-template-columns: 1fr;
-			grid-template-rows: repeat(1fr, 4);
+			grid-template-rows: repeat(4, 1fr);
 		}
 	}
 </style>
